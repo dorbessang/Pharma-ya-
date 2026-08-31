@@ -1,21 +1,28 @@
-import { PHARMACY_OFFERS } from "../data/mock";
-import type { Medication } from "../types";
+import { getPharmacy, offersForMedication } from "../data/mock";
+import type { Medication, Offer, Pharmacy } from "../types";
 import { StockBadge } from "../components/StockBadge";
+import { OpenBadge } from "../components/OpenBadge";
+import { PriceTag } from "../components/PriceTag";
 
 interface PharmacyOffersScreenProps {
   medication: Medication;
   onBack: () => void;
-  onAction: (message: string) => void;
+  onSelectPharmacy: (pharmacy: Pharmacy) => void;
+  onReserve: (pharmacy: Pharmacy, medication: Medication) => void;
 }
 
 export function PharmacyOffersScreen({
   medication,
   onBack,
-  onAction,
+  onSelectPharmacy,
+  onReserve,
 }: PharmacyOffersScreenProps) {
-  const offers = [...(PHARMACY_OFFERS[medication.id] ?? [])].sort(
-    (a, b) => a.distanceKm - b.distanceKm
-  );
+  const offers = offersForMedication(medication.id)
+    .map((offer) => ({ offer, pharmacy: getPharmacy(offer.pharmacyId) }))
+    .filter(
+      (o): o is { offer: Offer; pharmacy: Pharmacy } => o.pharmacy !== undefined
+    )
+    .sort((a, b) => a.pharmacy.distanceKm - b.pharmacy.distanceKm);
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -42,44 +49,37 @@ export function PharmacyOffersScreen({
         </p>
       </div>
 
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-slate-900">
-          Farmacias cercanas ({offers.length})
-        </h3>
-        <button
-          onClick={() => onAction("El mapa interactivo estará disponible próximamente")}
-          className="text-sm text-emerald-700 hover:text-emerald-800"
-        >
-          Ver en mapa
-        </button>
-      </div>
+      <h3 className="font-medium text-slate-900 mb-3">
+        Farmacias cercanas ({offers.length})
+      </h3>
 
       <div className="space-y-3">
-        {offers.map((offer) => (
+        {offers.map(({ offer, pharmacy }) => (
           <div
             key={offer.id}
             className="bg-white border border-slate-200 rounded-xl p-4"
           >
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-semibold text-slate-900">
-                  {offer.pharmacyName}
+              <button
+                onClick={() => onSelectPharmacy(pharmacy)}
+                className="text-left"
+              >
+                <p className="font-semibold text-slate-900 hover:text-emerald-700">
+                  {pharmacy.name}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {offer.chain} · {offer.address}, {offer.neighborhood}
+                  {pharmacy.chain} · {pharmacy.address}, {pharmacy.neighborhood}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500">
-                  <span>{offer.distanceKm} km</span>
+                  <span>{pharmacy.distanceKm} km</span>
                   <span>·</span>
-                  <span>{offer.openNow ? "Abierta ahora" : "Cerrada"}</span>
+                  <OpenBadge pharmacy={pharmacy} />
                   <span>·</span>
-                  <span>Actualizado hace {offer.updatedMinutesAgo} min</span>
+                  <span>Stock actualizado hace {offer.updatedMinutesAgo} min</span>
                 </div>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="font-semibold text-slate-900">
-                  ${offer.price.toLocaleString("es-AR")}
-                </p>
+              </button>
+              <div className="shrink-0">
+                <PriceTag price={offer.price} originalPrice={offer.originalPrice} />
                 <div className="mt-1">
                   <StockBadge level={offer.stock} />
                 </div>
@@ -89,20 +89,16 @@ export function PharmacyOffersScreen({
             <div className="mt-4 flex gap-2">
               <button
                 disabled={offer.stock === "sin-stock"}
-                onClick={() =>
-                  onAction(`Reserva en ${offer.pharmacyName} — próximamente`)
-                }
+                onClick={() => onReserve(pharmacy, medication)}
                 className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors text-white text-sm font-medium py-2"
               >
-                Reservar
+                Chatear y reservar
               </button>
               <button
-                onClick={() =>
-                  onAction("Cómo llegar estará disponible próximamente")
-                }
+                onClick={() => onSelectPharmacy(pharmacy)}
                 className="flex-1 rounded-lg border border-slate-300 hover:bg-slate-50 transition-colors text-sm font-medium py-2 text-slate-700"
               >
-                Cómo llegar
+                Ver farmacia
               </button>
             </div>
           </div>
