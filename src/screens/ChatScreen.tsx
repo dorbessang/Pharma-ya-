@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChatMessage, Medication, Pharmacy } from "../types";
 import { OpenBadge } from "../components/OpenBadge";
+import { Icon } from "../components/Icon";
 
 interface ChatScreenProps {
   pharmacy: Pharmacy;
@@ -82,7 +83,7 @@ export function ChatScreen({
   }
 
   function handleFileSelected(file: File) {
-    pushUserMessage("Te mando la receta 📎", file.name);
+    pushUserMessage("Te mando la receta", file.name);
     pushPharmacyReply(
       "Recibimos tu receta, la estamos validando. En cuanto esté lista te avisamos por acá para que la retires."
     );
@@ -93,26 +94,27 @@ export function ChatScreen({
     <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col h-[calc(100vh-140px)]">
       <button
         onClick={onBack}
-        className="text-sm text-slate-500 hover:text-slate-700 mb-3 self-start"
+        className="inline-flex items-center gap-1 text-sm text-ink-400 hover:text-ink-700 mb-3 self-start font-medium"
       >
-        ← Volver
+        <Icon name="arrowLeft" className="h-4 w-4" />
+        Volver
       </button>
 
-      <div className="bg-white border border-slate-200 rounded-t-xl p-4 flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center">
+      <div className="bg-white border border-ink-900/8 rounded-t-2xl p-4 flex items-center gap-3 shadow-sm">
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white font-display font-medium flex items-center justify-center">
           {pharmacy.name.charAt(0)}
         </div>
         <div>
-          <p className="font-semibold text-slate-900">{pharmacy.name}</p>
+          <p className="font-semibold text-ink-900">{pharmacy.name}</p>
           <OpenBadge pharmacy={pharmacy} />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-slate-100 border-x border-slate-200 p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto bg-ink-50/40 border-x border-ink-900/8 p-4 space-y-3">
         {medication && (
-          <div className="bg-white border border-slate-200 rounded-lg p-3 text-sm">
-            <p className="font-medium text-slate-900">{medication.brandName}</p>
-            <p className="text-slate-500 text-xs">
+          <div className="bg-white border border-ink-900/8 rounded-xl p-3 text-sm shadow-sm">
+            <p className="font-semibold text-ink-900">{medication.brandName}</p>
+            <p className="text-ink-400 text-xs">
               {medication.drugName} · {medication.presentation}
             </p>
           </div>
@@ -124,27 +126,28 @@ export function ChatScreen({
             className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
+              className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
                 m.sender === "user"
-                  ? "bg-emerald-600 text-white rounded-br-sm"
-                  : "bg-white text-slate-800 border border-slate-200 rounded-bl-sm"
+                  ? "bg-brand-600 text-white rounded-br-md"
+                  : "bg-white text-ink-800 border border-ink-900/8 rounded-bl-md"
               }`}
             >
               {m.attachmentName && (
                 <div
                   className={`mb-1.5 flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs ${
                     m.sender === "user"
-                      ? "bg-emerald-700/40"
-                      : "bg-slate-100 text-slate-600"
+                      ? "bg-white/15"
+                      : "bg-ink-50 text-ink-600"
                   }`}
                 >
-                  📄 {m.attachmentName}
+                  <Icon name="paperclip" className="h-3.5 w-3.5 shrink-0" />
+                  {m.attachmentName}
                 </div>
               )}
               <p>{m.text}</p>
               <p
                 className={`text-[10px] mt-1 ${
-                  m.sender === "user" ? "text-emerald-100" : "text-slate-400"
+                  m.sender === "user" ? "text-white/70" : "text-ink-300"
                 }`}
               >
                 {m.time}
@@ -155,27 +158,33 @@ export function ChatScreen({
 
         {pending && (
           <div className="flex justify-start">
-            <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm text-slate-400">
-              escribiendo…
+            <div className="bg-white border border-ink-900/8 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+              <span className="flex gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-ink-300 animate-bounce [animation-delay:-0.3s]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-ink-300 animate-bounce [animation-delay:-0.15s]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-ink-300 animate-bounce" />
+              </span>
             </div>
           </div>
         )}
         <div ref={scrollRef} />
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-b-xl p-3">
+      <div className="bg-white border border-ink-900/8 rounded-b-2xl p-3 shadow-sm">
         <div className="flex flex-wrap gap-2 mb-2">
           <button
             onClick={handleReservar}
-            className="text-xs font-medium rounded-full border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border border-brand-200 text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 transition-colors"
           >
+            <Icon name="package" className="h-3.5 w-3.5" />
             {medication ? `Reservar ${medication.brandName}` : "Reservar producto"}
           </button>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs font-medium rounded-full border border-slate-300 text-slate-600 hover:bg-slate-50 px-3 py-1.5"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-full border border-ink-900/10 text-ink-600 hover:bg-ink-50 px-3 py-1.5 transition-colors"
           >
-            📎 Enviar receta
+            <Icon name="paperclip" className="h-3.5 w-3.5" />
+            Enviar receta
           </button>
           <input
             ref={fileInputRef}
@@ -200,11 +209,11 @@ export function ChatScreen({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="Escribí un mensaje..."
-            className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm outline-none focus:border-emerald-400"
+            className="flex-1 rounded-full border border-ink-900/10 px-4 py-2 text-sm outline-none focus:border-brand-400 bg-ink-50/50"
           />
           <button
             type="submit"
-            className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2"
+            className="rounded-full bg-brand-600 hover:bg-brand-700 transition-colors text-white text-sm font-semibold px-4 py-2"
           >
             Enviar
           </button>

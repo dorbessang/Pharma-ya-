@@ -122,8 +122,8 @@ export default function App() {
         )}
       </main>
 
-      <footer className="text-center text-xs text-slate-400 py-6">
-        Pharma Ya · Prototipo de diseño · {new Date().getFullYear()}
+      <footer className="text-center text-xs text-ink-300 py-8">
+        Pharma Ya · Preview de diseño · {new Date().getFullYear()}
       </footer>
 
       <Toast message={toast} />
